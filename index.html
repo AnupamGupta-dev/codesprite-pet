@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeSprite - Your Fantasy Coding Pet</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        import React, { useState, useEffect } from 'react';
+import { Star, Zap, Crown, Sparkles, Code, Calendar, Trophy } from 'lucide-react';
+
+const CodeSprite = () => {
+  const [streak, setStreak] = useState(0);
+  const [lastCoded, setLastCoded] = useState(null);
+  const [totalDays, setTotalDays] = useState(0);
+  const [showCelebration, setShowCelebration] = useState(false);
+
+  // Pet evolution stages
+  const getEvolutionStage = (streak) => {
+    if (streak >= 100) return 'Archmage';
+    if (streak >= 50) return 'Wizard';
+    if (streak >= 30) return 'Mage';
+    if (streak >= 14) return 'Apprentice';
+    if (streak >= 7) return 'Novice';
+    if (streak >= 3) return 'Sprite';
+    if (streak >= 1) return 'Wisp';
+    return 'Ember';
+  };
+
+  // Pet appearance based on evolution
+  const getPetAppearance = (stage) => {
+    const appearances = {
+      'Ember': { color: 'from-orange-400 to-red-500', size: 'w-20 h-20', glow: 'shadow-orange-300' },
+      'Wisp': { color: 'from-blue-400 to-purple-500', size: 'w-24 h-24', glow: 'shadow-blue-300' },
+      'Sprite': { color: 'from-green-400 to-emerald-500', size: 'w-28 h-28', glow: 'shadow-green-300' },
+      'Novice': { color: 'from-purple-400 to-pink-500', size: 'w-32 h-32', glow: 'shadow-purple-300' },
+      'Apprentice': { color: 'from-indigo-400 to-blue-600', size: 'w-36 h-36', glow: 'shadow-indigo-300' },
+      'Mage': { color: 'from-violet-400 to-purple-600', size: 'w-40 h-40', glow: 'shadow-violet-300' },
+      'Wizard': { color: 'from-amber-400 to-orange-600', size: 'w-44 h-44', glow: 'shadow-amber-300' },
+      'Archmage': { color: 'from-rose-400 to-pink-600', size: 'w-48 h-48', glow: 'shadow-rose-300' }
+    };
+    return appearances[stage] || appearances['Ember'];
+  };
+
+  // Get pet mood and message
+  const getPetMood = (streak, stage) => {
+    if (streak === 0) return { mood: '😴', message: 'Your coding companion is sleeping... Start coding to wake them up!' };
+    if (streak >= 100) return { mood: '🌟', message: `Behold! Your ${stage} radiates incredible power! You are a true coding master!` };
+    if (streak >= 30) return { mood: '✨', message: `Your ${stage} is incredibly strong! This coding streak is legendary!` };
+    if (streak >= 14) return { mood: '🔥', message: `Your ${stage} is growing powerful! Two weeks of dedication!` };
+    if (streak >= 7) return { mood: '💫', message: `Your ${stage} is happy and energetic! One week streak achieved!` };
+    if (streak >= 3) return { mood: '⭐', message: `Your ${stage} is gaining strength! Keep the momentum going!` };
+    return { mood: '✨', message: `Your ${stage} has awakened! It's eager to grow with your coding journey!` };
+  };
+
+  const currentStage = getEvolutionStage(streak);
+  const petAppearance = getPetAppearance(currentStage);
+  const petMood = getPetMood(streak, currentStage);
+
+  const handleCodeToday = () => {
+    const today = new Date().toDateString();
+    
+    if (lastCoded === today) {
+      return; // Already coded today
+    }
+
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    if (lastCoded === yesterday.toDateString()) {
+      setStreak(streak + 1);
+    } else if (lastCoded === null || lastCoded === today) {
+      setStreak(streak + 1);
+    } else {
+      setStreak(1); // Reset streak if gap
+    }
+    
+    setLastCoded(today);
+    setTotalDays(totalDays + 1);
+    setShowCelebration(true);
+    setTimeout(() => setShowCelebration(false), 2000);
+  };
+
+  const getNextEvolution = (currentStage) => {
+    const stages = ['Ember', 'Wisp', 'Sprite', 'Novice', 'Apprentice', 'Mage', 'Wizard', 'Archmage'];
+    const currentIndex = stages.indexOf(currentStage);
+    return currentIndex < stages.length - 1 ? stages[currentIndex + 1] : null;
+  };
+
+  const getNextEvolutionDays = (streak) => {
+    const thresholds = [1, 3, 7, 14, 30, 50, 100];
+    const nextThreshold = thresholds.find(t => t > streak);
+    return nextThreshold ? nextThreshold - streak : 0;
+  };
+
+  const todaysCoded = lastCoded === new Date().toDateString();
+  const nextEvolution = getNextEvolution(currentStage);
+  const daysToNext = getNextEvolutionDays(streak);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-white mb-2 flex items-center justify-center gap-2">
+            <Code className="text-purple-400" />
+            CodeSprite
+            <Sparkles className="text-yellow-400" />
+          </h1>
+          <p className="text-purple-200">Your magical coding companion grows with your dedication!</p>
+        </div>
+
+        {/* Main Pet Display */}
+        <div className="relative bg-black/30 backdrop-blur-sm rounded-3xl p-8 mb-6 border border-purple-500/30">
+          {showCelebration && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="text-6xl animate-bounce">🎉</div>
+            </div>
+          )}
+          
+          <div className="text-center">
+            <div className="relative inline-block mb-4">
+              <div className={`${petAppearance.size} ${petAppearance.glow} shadow-2xl rounded-full bg-gradient-to-br ${petAppearance.color} mx-auto animate-pulse flex items-center justify-center text-4xl font-bold text-white`}>
+                {petMood.mood}
+              </div>
+              {streak > 0 && (
+                <div className="absolute -top-2 -right-2 bg-yellow-500 text-black text-xs font-bold px-2 py-1 rounded-full">
+                  {streak}
+                </div>
+              )}
+            </div>
+            
+            <h2 className="text-3xl font-bold text-white mb-2">{currentStage}</h2>
+            <p className="text-purple-200 mb-6 max-w-md mx-auto">{petMood.message}</p>
+            
+            <button
+              onClick={handleCodeToday}
+              disabled={todaysCoded}
+              className={`px-8 py-3 rounded-full font-semibold text-lg transition-all duration-300 ${
+                todaysCoded
+                  ? 'bg-green-600 text-white cursor-not-allowed'
+                  : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white transform hover:scale-105'
+              }`}
+            >
+              {todaysCoded ? '✅ Coded Today!' : '🚀 I Coded Today!'}
+            </button>
+          </div>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid md:grid-cols-3 gap-6 mb-6">
+          <div className="bg-black/30 backdrop-blur-sm rounded-xl p-6 border border-blue-500/30">
+            <div className="flex items-center gap-3 mb-2">
+              <Zap className="text-yellow-400" />
+              <h3 className="text-xl font-semibold text-white">Current Streak</h3>
+            </div>
+            <p className="text-3xl font-bold text-yellow-400">{streak} days</p>
+          </div>
+          
+          <div className="bg-black/30 backdrop-blur-sm rounded-xl p-6 border border-green-500/30">
+            <div className="flex items-center gap-3 mb-2">
+              <Calendar className="text-green-400" />
+              <h3 className="text-xl font-semibold text-white">Total Days</h3>
+            </div>
+            <p className="text-3xl font-bold text-green-400">{totalDays} days</p>
+          </div>
+          
+          <div className="bg-black/30 backdrop-blur-sm rounded-xl p-6 border border-purple-500/30">
+            <div className="flex items-center gap-3 mb-2">
+              <Trophy className="text-purple-400" />
+              <h3 className="text-xl font-semibold text-white">Evolution</h3>
+            </div>
+            <p className="text-3xl font-bold text-purple-400">{currentStage}</p>
+          </div>
+        </div>
+
+        {/* Evolution Progress */}
+        {nextEvolution && (
+          <div className="bg-black/30 backdrop-blur-sm rounded-xl p-6 border border-indigo-500/30 mb-6">
+            <div className="flex items-center gap-3 mb-4">
+              <Star className="text-indigo-400" />
+              <h3 className="text-xl font-semibold text-white">Next Evolution</h3>
+            </div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-purple-200">Progress to {nextEvolution}</span>
+              <span className="text-indigo-400 font-semibold">{daysToNext} days to go</span>
+            </div>
+            <div className="w-full bg-gray-700 rounded-full h-3">
+              <div 
+                className="bg-gradient-to-r from-indigo-500 to-purple-500 h-3 rounded-full transition-all duration-500"
+                style={{ width: `${Math.min(100, (streak / (streak + daysToNext)) * 100)}%` }}
+              ></div>
+            </div>
+          </div>
+        )}
+
+        {/* Evolution Guide */}
+        <div className="bg-black/30 backdrop-blur-sm rounded-xl p-6 border border-gray-500/30">
+          <h3 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+            <Crown className="text-yellow-400" />
+            Evolution Guide
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { stage: 'Ember', days: 0, icon: '🔥' },
+              { stage: 'Wisp', days: 1, icon: '✨' },
+              { stage: 'Sprite', days: 3, icon: '⭐' },
+              { stage: 'Novice', days: 7, icon: '💫' },
+              { stage: 'Apprentice', days: 14, icon: '🌟' },
+              { stage: 'Mage', days: 30, icon: '🔮' },
+              { stage: 'Wizard', days: 50, icon: '🧙‍♂️' },
+              { stage: 'Archmage', days: 100, icon: '🌌' }
+            ].map(({ stage, days, icon }) => (
+              <div key={stage} className={`p-3 rounded-lg border text-center ${
+                currentStage === stage 
+                  ? 'bg-purple-600/50 border-purple-400 text-white' 
+                  : 'bg-gray-800/50 border-gray-600 text-gray-300'
+              }`}>
+                <div className="text-2xl mb-1">{icon}</div>
+                <div className="font-semibold text-sm">{stage}</div>
+                <div className="text-xs opacity-75">{days} days</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CodeSprite;
+        
+        ReactDOM.render(<CodeSprite />, document.getElementById('root'));
+    </script>
+</body>
+</html>
